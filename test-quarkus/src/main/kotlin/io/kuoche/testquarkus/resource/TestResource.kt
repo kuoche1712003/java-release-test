@@ -2,8 +2,10 @@ package io.kuoche.testquarkus.resource
 
 import io.kuoche.testapplication.usecase.CreateTestUseCase
 import io.kuoche.testapplication.usecase.GetTestUseCase
+import io.kuoche.testapplication.usecase.ListTestsUseCase
 import io.kuoche.testquarkus.resource.presenter.AddTestPresenter
 import io.kuoche.testquarkus.resource.presenter.GetTestPresenter
+import io.kuoche.testquarkus.resource.presenter.ListTestsPresenter
 import io.kuoche.testquarkus.resource.viewmodel.TestViewModel
 import jakarta.ws.rs.*
 import jakarta.ws.rs.core.Context
@@ -14,6 +16,7 @@ import jakarta.ws.rs.core.UriInfo
 class TestResource(
     private val createTestUseCase: CreateTestUseCase,
     private val getTestUseCase: GetTestUseCase,
+    private val listTestsUseCase: ListTestsUseCase,
     @Context private val uriInfo: UriInfo,
 ) {
 
@@ -26,6 +29,13 @@ class TestResource(
         getTestUseCase.execute(GetTestUseCase.Input(id), presenter)
         return presenter.viewModel
             ?: throw NotFoundException("not found")
+    }
+
+    @GET
+    suspend fun listTests(): List<TestViewModel>{
+        val presenter = ListTestsPresenter()
+        listTestsUseCase.execute(presenter)
+        return presenter.viewModel
     }
 
     @POST

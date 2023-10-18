@@ -1,4 +1,4 @@
-name: test-quarkus-staging
+name: test-quarkus-production
 on:
   push:
     tags:
