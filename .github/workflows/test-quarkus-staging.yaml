@@ -3,6 +3,9 @@ on:
   push:
     branches:
       - develop
+permissions:
+  packages: write
+
 jobs:
   build:
     name: Build And Push
@@ -17,33 +20,30 @@ jobs:
           echo "image-tag=$GITHUB_SHA" >> $GITHUB_ENV
           echo "::set-output name=image-tag::$GITHUB_SHA"
       # checkout repository
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       # set up JDK version
       - name: Set up JDK 17
-        uses: actions/setup-java@v2
+        uses: actions/setup-java@v3
         with:
           java-version: '17'
           distribution: 'corretto'
       # cache maven dependency
       - name: Cache Maven packages
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: ~/.m2
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
 
-      - name: clean install trek-tyche parent
-        run: >
-          mvn clean install -pl test-domain,test-application   
-
       # build project
       - name: Build And Push To Github Package
         run: >
           mvn clean package 
-          -pl rmn-api
+          -pl test-quarkus -am
           -DskipTests
           -Dquarkus.container-image.registry=ghcr.io
-          -Dquarkus.container-image.group=ghcr.io/aotter
+          -Dquarkus.container-image.group=ghcr.io/kuoche1712003
+          -Dquarkus.container-image.name=test-quarkus-staging
           -Dquarkus.container-image.username=${{ github.actor }}
           -Dquarkus.container-image.password=${{ secrets.GITHUB_TOKEN }}
           -Dquarkus.container-image.build=true
